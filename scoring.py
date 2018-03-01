@@ -47,6 +47,21 @@ class Model(object):
         f.close()
 
 
+        def rate(self, model):
+            saved = 0
+            for video, endpoint, times in self._requests:
+                
+                latency = self._endpoints[endpoint][0]
+                for ms, cached_id in self._endpoints[endpoint][1]:
+                    if model.videoIn(video, cached_id) and latency > ms:
+                        latency = ms
+
+                saved+=(self._endpoints[endpoint][0] - ms)*times
+
+            return saved
+
+
+
 
 if __name__ == "__main__":
     model = Model("./test.in")
