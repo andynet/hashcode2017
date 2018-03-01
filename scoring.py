@@ -49,16 +49,20 @@ class Model(object):
 
     def rate(self, invidual, videoIn):
         saved = 0
+        sum_times = 0
         for video, endpoint, times in self._requests:
-           
             latency = self._endpoints[endpoint][0]
+            sum_times += times
             for cached_id, ms in self._endpoints[endpoint][1]:
                 if videoIn(invidual, video, cached_id, self._numVideos) and latency > ms:
                     latency = ms
-
-            saved+=(self._endpoints[endpoint][0] - ms)*times
-
-        return saved
+            #print("##################")
+            #print("(%d - %d)*%d" % (self._endpoints[endpoint][0],
+            #    latency, times))
+            save = (self._endpoints[endpoint][0] - latency)*times
+            saved+=save
+        
+        return (saved*1000)/sum_times
 
 
 
@@ -66,3 +70,7 @@ class Model(object):
 if __name__ == "__main__":
     model = Model("./test.in")
     print(vars(model))
+    def videoIn(invidual, video, cache_id, num_videos):
+        return 1 == invidual[cache_id*num_videos + video]
+    invidual = [0,0,1,0,0, 0,1,0,1,0, 1,1,0,0,0]
+    print(model.rate(invidual, videoIn))
